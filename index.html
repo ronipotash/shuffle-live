@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>Shuffle App</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
   <style>
     body {
       margin: 0;
@@ -137,7 +136,6 @@
   </div>
 
   <audio id="audioPlayer"></audio>
-  <img id="hiddenColorImage" crossorigin="anonymous" style="display:none;" />
 
   <script>
     const shuffleBtn = document.getElementById('shuffleBtn');
@@ -151,8 +149,6 @@
     const playBtn = document.getElementById('playBtn');
     const stopBtn = document.getElementById('stopBtn');
     const audioPlayer = document.getElementById('audioPlayer');
-    const hiddenColorImage = document.getElementById('hiddenColorImage');
-    const colorThief = new ColorThief();
 
     const randomTerms = ["love", "dance", "night", "sun", "dream", "ra", "yo", "star"];
 
@@ -182,12 +178,6 @@
           audioPlayer.src = track.preview;
           songInfo.classList.remove('hidden');
           songInfo.classList.add('fade-in');
-
-          hiddenColorImage.onload = () => {
-            const dominantColor = colorThief.getColor(hiddenColorImage);
-            document.body.style.backgroundColor = `rgb(${dominantColor.join(",")})`;
-          };
-          hiddenColorImage.src = track.album.cover_medium;
         })
         .catch(err => {
           console.error(err);
