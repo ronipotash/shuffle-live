@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   shuffleBtn.addEventListener('click', () => {
     const term = randomTerms[Math.floor(Math.random() * randomTerms.length)];
-    fetch(`https://api.allorigins.win/raw?url=https://api.deezer.com/search?q=${term}`)
+    fetch(`https://corsproxy.io/?https://api.deezer.com/search?q=${term}`)
       .then(res => res.json())
       .then(data => {
         if (!data.data || data.data.length === 0) return alert("No songs found");
