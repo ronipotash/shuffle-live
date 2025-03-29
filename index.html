@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shuffle App - iTunes</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(-45deg, #f5f2e9, #e0e0ff, #f5f2e9);
+      background-size: 400% 400%;
+      animation: backgroundAnimation 20s ease infinite;
+    }
+    @keyframes backgroundAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .shuffle-button {
+      display: block;
+      width: 200px;
+      height: 200px;
+      margin: 100px auto;
+      border-radius: 50%;
+      border: none;
+      background: url("https://i.imgur.com/l1YwrjK.jpeg") no-repeat center center/cover;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(0,0,0,0.2);
+    }
+    .click-counter {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.8);
+      padding: 10px 20px;
+      border-radius: 16px;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .song-info {
+      text-align: center;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <button class="shuffle-button" id="shuffleBtn"></button>
+  <div class="click-counter" id="clickCounter">Till now, the SHUFFLE button was clicked 0 times</div>
+  <div class="song-info" id="songInfo">
+    <div id="songTitle"></div>
+    <div id="songArtist"></div>
+    <div id="songAlbum"></div>
+    <audio id="audioPlayer" controls style="margin-top:10px;"></audio>
+  </div>
+  <script>
+    let clickCount = localStorage.getItem("clicks") || 0;
+    document.getElementById("clickCounter").innerText =
+      "Till now, the SHUFFLE button was clicked " + clickCount + " times";
+
+    document.getElementById("shuffleBtn").addEventListener("click", () => {
+      clickCount++;
+      localStorage.setItem("clicks", clickCount);
+      document.getElementById("clickCounter").innerText =
+        "Till now, the SHUFFLE button was clicked " + clickCount + " times";
+
+      const term = "pop";
+      fetch(`https://itunes.apple.com/search?term=${term}&media=music`)
+        .then(res => res.json())
+        .then(data => {
+          const track = data.results[Math.floor(Math.random() * data.results.length)];
+          document.getElementById("songTitle").innerText = "🎵 " + track.trackName;
+          document.getElementById("songArtist").innerText = "👤 " + track.artistName;
+          document.getElementById("songAlbum").innerText = "💿 " + track.collectionName;
+          document.getElementById("audioPlayer").src = track.previewUrl;
+        })
+        .catch(err => {
+          alert("Failed to load song from iTunes");
+        });
+    });
+  </script>
+</body>
+</html>
