@@ -229,6 +229,82 @@
       })
       .catch(() => alert("Failed to fetch random word"));
   }
+  const shuffleBtn = document.getElementById("shuffleBtn");
+  const clickCounter = document.getElementById("clickCounter");
+  const playBtn = document.getElementById("playBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  const likeBtn = document.getElementById("likeBtn");
+  const audioPlayer = document.getElementById("audioPlayer");
+  const songTitle = document.getElementById("songTitle");
+  const songArtist = document.getElementById("songArtist");
+  const songCover = document.getElementById("songCover");
+  const songLink = document.getElementById("songLink");
+  const volumeSlider = document.getElementById("volumeSlider");
+  const historyList = document.getElementById("historyList");
+  let clickCount = parseInt(localStorage.getItem("clicks")) || 0;
+  let history = JSON.parse(localStorage.getItem("history") || "[]");
+  const likedSongs = JSON.parse(localStorage.getItem("likedSongs") || "[]");
+
+  clickCounter.textContent = `Till now, the SHUFFLE button was clicked ${clickCount} times`;
+
+  const options = {
+    method: 'GET',
+    headers: {
+      'X-RapidAPI-Key': 'f21fc50383mshc998bd535367f60p187d56jsna7d42e2c46f6',
+      'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
+    }
+  };
+
+  function setDynamicBackground(imgUrl) {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = imgUrl;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let r = 0, g = 0, b = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        r += data[i];
+        g += data[i + 1];
+        b += data[i + 2];
+      }
+      const pixelCount = data.length / 4;
+      r = Math.round(r / pixelCount);
+      g = Math.round(g / pixelCount);
+      b = Math.round(b / pixelCount);
+      document.body.style.backgroundColor = `rgb(${r},${g},${b})`;
+    };
+  }
+
+  function updateHistory(title, artist) {
+    history.unshift(`${title} - ${artist}`);
+    if (history.length > 10) history.pop();
+    localStorage.setItem("history", JSON.stringify(history));
+    historyList.innerHTML = `<h3>History:</h3><ul>${history.map(item => `<li>${item}</li>`).join('')}</ul>`;
+    historyList.classList.remove("hidden");
+    historyList.classList.add("fade-in");
+  }
+
+  shuffleBtn.addEventListener("click", fetchSong);
+  playBtn.addEventListener("click", () => audioPlayer.play());
+  stopBtn.addEventListener("click", () => {
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
+  });
+  likeBtn.addEventListener("click", () => {
+    const title = songTitle.textContent;
+    const artist = songArtist.textContent;
+    likedSongs.push(`${title} - ${artist}`);
+    localStorage.setItem("likedSongs", JSON.stringify(likedSongs));
+    alert("Added to liked songs!");
+  });
+  volumeSlider.addEventListener("input", () => {
+    audioPlayer.volume = volumeSlider.value;
+  });
 </script>
 </body>
 </html>
