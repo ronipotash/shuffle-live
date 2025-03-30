@@ -20,6 +20,13 @@
       100% { background-position: 0% 50%; }
     }
     .hidden { display: none !important; }
+    .fade-in {
+      animation: fadeIn 0.8s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     .shuffle-button {
       border: none;
       border-radius: 50%;
@@ -30,24 +37,32 @@
       box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
       transition: transform 0.3s ease;
       position: absolute;
-      top: 50%; left: 50%;
+      top: 20%; left: 50%;
       transform: translate(-50%, -50%);
     }
-    .shuffle-button:hover {
-      transform: translate(-50%, -50%) scale(1.1);
+    .click-counter {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      font-weight: bold;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
     }
     .container {
-      max-width: 600px;
-      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
       padding: 20px;
+      margin-top: 250px;
     }
     .glass-box {
       background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(8px);
       border-radius: 16px;
       padding: 20px;
-      margin-top: 20px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 45%;
     }
     .glass-box img {
       width: 100px;
@@ -64,15 +79,13 @@
       color: #fff;
       cursor: pointer;
     }
-    .click-counter {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 20px;
-      font-weight: bold;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    @keyframes rotate360twice {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(360deg); }
+      100% { transform: rotate(720deg); }
+    }
+    .rotate {
+      animation: rotate360twice 0.8s ease-in-out;
     }
   </style>
 </head>
@@ -134,9 +147,7 @@
         const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
         let r = 0, g = 0, b = 0;
         for (let i = 0; i < data.length; i += 4) {
-          r += data[i];
-          g += data[i+1];
-          b += data[i+2];
+          r += data[i]; g += data[i+1]; b += data[i+2];
         }
         const pixelCount = data.length / 4;
         r = Math.round(r / pixelCount);
@@ -152,12 +163,16 @@
       localStorage.setItem("history", JSON.stringify(history));
       historyList.innerHTML = `<h3>History:</h3><ul>${history.map(item => `<li>${item}</li>`).join('')}</ul>`;
       historyList.classList.remove("hidden");
+      historyList.classList.add("fade-in");
     }
 
     function fetchSong() {
       clickCount++;
       localStorage.setItem("clicks", clickCount);
       clickCounter.textContent = `Till now, the SHUFFLE button was clicked ${clickCount} times`;
+
+      shuffleBtn.classList.add("rotate");
+      setTimeout(() => shuffleBtn.classList.remove("rotate"), 800);
 
       const terms = ["love", "dance", "happy", "night"];
       const term = terms[Math.floor(Math.random() * terms.length)];
@@ -176,7 +191,9 @@
             <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">▶️ YouTube</a>`;
           audioPlayer.src = track.hub?.actions?.[1]?.uri || "";
           audioPlayer.onended = fetchSong;
+          audioPlayer.play();
           songInfo.classList.remove("hidden");
+          songInfo.classList.add("fade-in");
           setDynamicBackground(track.images.coverart);
           updateHistory(track.title, track.subtitle);
         })
