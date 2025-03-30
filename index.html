@@ -161,15 +161,7 @@
 </head>
 <body>
 <div class="container">
-  <select id="genreSelect" class="dropdown">
-    <option value="">🎶 All Genres</option>
-    <option value="pop">Pop</option>
-    <option value="rock">Rock</option>
-    <option value="hiphop">Hip-Hop</option>
-    <option value="jazz">Jazz</option>
-    <option value="classical">Classical</option>
-    <option value="electronic">Electronic</option>
-  </select>
+  
 
   <div class="glass-box hidden" id="songInfo">
     <img id="songCover" src="" alt="cover" />
@@ -189,12 +181,10 @@
   <div class="glass-box hidden" id="historyList"></div>
 </div>
 <script>
-  const genreSelect = document.getElementById("genreSelect");
-  const songExtra = document.getElementById("songExtra");
+    const songExtra = document.getElementById("songExtra");
   
   function fetchSong() {
-    const genre = genreSelect.value;
-    clickCount++;
+        clickCount++;
     localStorage.setItem("clicks", clickCount);
     clickCounter.textContent = `Till now, the SHUFFLE button was clicked ${clickCount} times`;
     shuffleBtn.classList.add("rotate");
@@ -203,7 +193,7 @@
     fetch('https://random-word-api.herokuapp.com/word')
       .then(res => res.json())
       .then(([term]) => {
-        const searchTerm = genre ? `${term} ${genre}` : term;
+        const searchTerm = term;
         fetch(`https://shazam.p.rapidapi.com/search?term=${searchTerm}&locale=en-US&limit=5`, options)
           .then(res => res.json())
           .then(data => {
