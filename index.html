@@ -2,55 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Shuffle App - Shazam Upgraded</title>
+  <title>Shuffle App - Classic Style</title>
   <style>
     body {
       margin: 0;
       height: 100vh;
       font-family: Arial, sans-serif;
+      background: linear-gradient(-45deg, #f5f2e9, #e0e0ff, #f5f2e9);
+      background-size: 400% 400%;
+      animation: backgroundAnimation 20s ease infinite;
+      color: #333;
       overflow-x: hidden;
-      background-color: #121212;
-      color: #fff;
-      transition: background-color 1s ease;
+    }
+    @keyframes backgroundAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     .hidden { display: none !important; }
     .shuffle-button {
+      border: none;
+      border-radius: 50%;
+      width: 200px;
+      height: 200px;
+      cursor: pointer;
+      background: url("https://i.imgur.com/l1YwrjK.jpeg") center/cover;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 200px; height: 200px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #ff0080, #7928ca);
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
-      font-size: 24px;
-      font-weight: bold;
-      color: white;
-      transition: transform 0.2s;
     }
     .shuffle-button:hover {
       transform: translate(-50%, -50%) scale(1.1);
     }
-    .song-info, .history-list {
-      max-width: 90vw;
-      margin: 20px auto;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(8px);
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
     }
-    .song-info img {
-      width: 100px; border-radius: 12px;
+    .glass-box {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .glass-box img {
+      width: 100px;
+      border-radius: 12px;
+      margin-bottom: 10px;
     }
     .song-title { font-size: 1.2em; font-weight: bold; }
     .controls button {
-      margin: 10px;
+      margin: 10px 5px;
       padding: 8px 16px;
       border: none;
       border-radius: 20px;
-      background: #00ffc8;
-      color: #000;
+      background: #333;
+      color: #fff;
       cursor: pointer;
     }
     .click-counter {
@@ -58,27 +69,30 @@
       bottom: 20px;
       left: 20px;
       padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.8);
       border-radius: 20px;
-      backdrop-filter: blur(6px);
+      font-weight: bold;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
 <body>
-  <button class="shuffle-button" id="shuffleBtn">SHUFFLE</button>
-  <div class="click-counter" id="clickCounter">Clicks: 0</div>
-  <div class="song-info hidden" id="songInfo">
-    <div><img id="songCover" src="" /></div>
-    <div class="song-title" id="songTitle"></div>
-    <div id="songArtist"></div>
-    <div id="songLink"></div>
-    <audio id="audioPlayer" controls></audio>
-    <div class="controls">
-      <button id="playBtn">Play</button>
-      <button id="stopBtn">Stop</button>
+  <button class="shuffle-button" id="shuffleBtn"></button>
+  <div class="click-counter" id="clickCounter">Till now, the SHUFFLE button was clicked 0 times</div>
+  <div class="container">
+    <div class="glass-box hidden" id="songInfo">
+      <img id="songCover" src="" alt="cover" />
+      <div class="song-title" id="songTitle"></div>
+      <div id="songArtist"></div>
+      <div id="songLink"></div>
+      <audio id="audioPlayer" controls></audio>
+      <div class="controls">
+        <button id="playBtn">Play</button>
+        <button id="stopBtn">Stop</button>
+      </div>
     </div>
+    <div class="glass-box hidden" id="historyList"></div>
   </div>
-  <div class="history-list hidden" id="historyList"></div>
   <script>
     const shuffleBtn = document.getElementById("shuffleBtn");
     const songInfo = document.getElementById("songInfo");
@@ -97,7 +111,7 @@
     let autoShuffle = false;
     let autoInterval = null;
 
-    clickCounter.textContent = `Clicks: ${clickCount}`;
+    clickCounter.textContent = `Till now, the SHUFFLE button was clicked ${clickCount} times`;
 
     const options = {
       method: 'GET',
@@ -129,7 +143,7 @@
         g = Math.round(g / pixelCount);
         b = Math.round(b / pixelCount);
         document.body.style.backgroundColor = `rgb(${r},${g},${b})`;
-      }
+      };
     }
 
     function updateHistory(title, artist) {
@@ -143,7 +157,7 @@
     function fetchSong() {
       clickCount++;
       localStorage.setItem("clicks", clickCount);
-      clickCounter.textContent = `Clicks: ${clickCount}`;
+      clickCounter.textContent = `Till now, the SHUFFLE button was clicked ${clickCount} times`;
 
       const terms = ["love", "dance", "happy", "night"];
       const term = terms[Math.floor(Math.random() * terms.length)];
@@ -156,9 +170,9 @@
           songArtist.textContent = track.subtitle;
           songCover.src = track.images.coverart;
           songLink.innerHTML = `
-            <a href="${track.url}" target="_blank">🔗 Shazam</a> | 
-            <a href="https://open.spotify.com/search/${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🎵 Spotify</a> | 
-            <a href="https://music.apple.com/us/search?term=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🍎 Apple Music</a> | 
+            <a href="${track.url}" target="_blank">🔗 Shazam</a> |
+            <a href="https://open.spotify.com/search/${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🎵 Spotify</a> |
+            <a href="https://music.apple.com/us/search?term=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🍎 Apple Music</a> |
             <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">▶️ YouTube</a>`;
           audioPlayer.src = track.hub?.actions?.[1]?.uri || "";
           audioPlayer.onended = fetchSong;
@@ -176,7 +190,6 @@
       audioPlayer.currentTime = 0;
     });
 
-    // Optional toggle for auto-shuffle
     document.addEventListener("keydown", (e) => {
       if (e.key === "a") {
         autoShuffle = !autoShuffle;
