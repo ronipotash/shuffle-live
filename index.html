@@ -8,7 +8,7 @@
       margin: 0;
       height: 100vh;
       font-family: Arial, sans-serif;
-      background: linear-gradient(-45deg, #f5f2e9, #e0e0ff, #f5f2e9);
+      background: linear-gradient(-45deg, #fefae0, #fdf6e3, #f5f2e9);
       background-size: 400% 400%;
       animation: backgroundAnimation 20s ease infinite;
       color: #333;
@@ -27,6 +27,21 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .splash-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: #fefae0;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .splash-screen img {
+      width: 200px;
+      height: 200px;
+    }
     .shuffle-button {
       border: none;
       border-radius: 50%;
@@ -34,11 +49,22 @@
       height: 200px;
       cursor: pointer;
       background: url("https://i.imgur.com/l1YwrjK.jpeg") center/cover;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-      transition: transform 0.3s ease;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
       position: absolute;
-      top: 20%; left: 50%;
+      top: 15%; left: 50%;
       transform: translate(-50%, -50%);
+    }
+    .shuffle-button:active {
+      transform: translate(-50%, -50%) scale(0.96);
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    @keyframes rotate360 {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    .rotate {
+      animation: rotate360 0.8s ease-in-out;
     }
     .click-counter {
       position: fixed;
@@ -52,8 +78,8 @@
     }
     .container {
       display: flex;
-      justify-content: space-between;
-      padding: 20px;
+      flex-direction: column;
+      align-items: center;
       margin-top: 250px;
     }
     .glass-box {
@@ -62,12 +88,15 @@
       border-radius: 16px;
       padding: 20px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 45%;
+      width: 90%;
+      max-width: 500px;
+      margin: 20px auto;
     }
     .glass-box img {
       width: 100px;
       border-radius: 12px;
       margin-bottom: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
     .song-title { font-size: 1.2em; font-weight: bold; }
     .controls button {
@@ -79,17 +108,34 @@
       color: #fff;
       cursor: pointer;
     }
-    @keyframes rotate360twice {
-      0% { transform: rotate(0deg); }
-      50% { transform: rotate(360deg); }
-      100% { transform: rotate(720deg); }
+    .volume-slider {
+      width: 100%;
+      margin: 10px 0;
     }
-    .rotate {
-      animation: rotate360twice 0.8s ease-in-out;
+    .like-button {
+      font-size: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: red;
+    }
+    @media (max-width: 600px) {
+      .shuffle-button {
+        width: 150px;
+        height: 150px;
+      }
+      .glass-box {
+        width: 95%;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="splash-screen" id="splash">
+    <img src="https://i.imgur.com/2R2GeWL.gif" alt="Loading..." />
+    <h1>SHUFFLE</h1>
+  </div>
+
   <button class="shuffle-button" id="shuffleBtn"></button>
   <div class="click-counter" id="clickCounter">Till now, the SHUFFLE button was clicked 0 times</div>
   <div class="container">
@@ -98,126 +144,38 @@
       <div class="song-title" id="songTitle"></div>
       <div id="songArtist"></div>
       <div id="songLink"></div>
-      <audio id="audioPlayer" controls></audio>
       <div class="controls">
         <button id="playBtn">Play</button>
         <button id="stopBtn">Stop</button>
+        <button class="like-button" id="likeBtn">❤️</button>
       </div>
+      <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1" />
+      <audio id="audioPlayer"></audio>
     </div>
     <div class="glass-box hidden" id="historyList"></div>
   </div>
+
   <script>
-    const shuffleBtn = document.getElementById("shuffleBtn");
-    const songInfo = document.getElementById("songInfo");
-    const songTitle = document.getElementById("songTitle");
-    const songArtist = document.getElementById("songArtist");
-    const songCover = document.getElementById("songCover");
-    const songLink = document.getElementById("songLink");
-    const audioPlayer = document.getElementById("audioPlayer");
-    const playBtn = document.getElementById("playBtn");
-    const stopBtn = document.getElementById("stopBtn");
-    const clickCounter = document.getElementById("clickCounter");
-    const historyList = document.getElementById("historyList");
-
-    let clickCount = localStorage.getItem("clicks") || 0;
-    let history = JSON.parse(localStorage.getItem("history") || "[]");
-    let autoShuffle = false;
-    let autoInterval = null;
-
-    clickCounter.textContent = `Till now, the SHUFFLE button was clicked ${clickCount} times`;
-
-    const options = {
-      method: 'GET',
-      headers: {
-        'X-RapidAPI-Key': 'f21fc50383mshc998bd535367f60p187d56jsna7d42e2c46f6',
-        'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
-      }
-    };
-
-    function setDynamicBackground(imgUrl) {
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.src = imgUrl;
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        let r = 0, g = 0, b = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i]; g += data[i+1]; b += data[i+2];
-        }
-        const pixelCount = data.length / 4;
-        r = Math.round(r / pixelCount);
-        g = Math.round(g / pixelCount);
-        b = Math.round(b / pixelCount);
-        document.body.style.backgroundColor = `rgb(${r},${g},${b})`;
-      };
-    }
-
-    function updateHistory(title, artist) {
-      history.unshift(`${title} - ${artist}`);
-      if (history.length > 10) history.pop();
-      localStorage.setItem("history", JSON.stringify(history));
-      historyList.innerHTML = `<h3>History:</h3><ul>${history.map(item => `<li>${item}</li>`).join('')}</ul>`;
-      historyList.classList.remove("hidden");
-      historyList.classList.add("fade-in");
-    }
-
-    function fetchSong() {
-      clickCount++;
-      localStorage.setItem("clicks", clickCount);
-      clickCounter.textContent = `Till now, the SHUFFLE button was clicked ${clickCount} times`;
-
-      shuffleBtn.classList.add("rotate");
-      setTimeout(() => shuffleBtn.classList.remove("rotate"), 800);
-
-      const terms = ["love", "dance", "happy", "night"];
-      const term = terms[Math.floor(Math.random() * terms.length)];
-
-      fetch(`https://shazam.p.rapidapi.com/search?term=${term}&locale=en-US&limit=5`, options)
-        .then(res => res.json())
-        .then(data => {
-          const track = data.tracks.hits[Math.floor(Math.random() * data.tracks.hits.length)].track;
-          songTitle.textContent = track.title;
-          songArtist.textContent = track.subtitle;
-          songCover.src = track.images.coverart;
-          songLink.innerHTML = `
-            <a href="${track.url}" target="_blank">🔗 Shazam</a> |
-            <a href="https://open.spotify.com/search/${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🎵 Spotify</a> |
-            <a href="https://music.apple.com/us/search?term=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🍎 Apple Music</a> |
-            <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">▶️ YouTube</a>`;
-          audioPlayer.src = track.hub?.actions?.[1]?.uri || "";
-          audioPlayer.onended = fetchSong;
-          audioPlayer.play();
-          songInfo.classList.remove("hidden");
-          songInfo.classList.add("fade-in");
-          setDynamicBackground(track.images.coverart);
-          updateHistory(track.title, track.subtitle);
-        })
-        .catch(() => alert("Failed to fetch song"));
-    }
-
-    shuffleBtn.addEventListener("click", fetchSong);
-    playBtn.addEventListener("click", () => audioPlayer.play());
-    stopBtn.addEventListener("click", () => {
-      audioPlayer.pause();
-      audioPlayer.currentTime = 0;
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("splash").style.display = "none";
+      }, 2500);
     });
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "a") {
-        autoShuffle = !autoShuffle;
-        if (autoShuffle) {
-          autoInterval = setInterval(fetchSong, 15000);
-          alert("Auto Shuffle Enabled");
-        } else {
-          clearInterval(autoInterval);
-          alert("Auto Shuffle Disabled");
-        }
-      }
+    const audioPlayer = document.getElementById("audioPlayer");
+    const volumeSlider = document.getElementById("volumeSlider");
+    volumeSlider.addEventListener("input", () => {
+      audioPlayer.volume = volumeSlider.value;
+    });
+
+    const likeBtn = document.getElementById("likeBtn");
+    const likedSongs = JSON.parse(localStorage.getItem("likedSongs") || "[]");
+    likeBtn.addEventListener("click", () => {
+      const title = document.getElementById("songTitle").textContent;
+      const artist = document.getElementById("songArtist").textContent;
+      likedSongs.push(`${title} - ${artist}`);
+      localStorage.setItem("likedSongs", JSON.stringify(likedSongs));
+      alert("Added to liked songs!");
     });
   </script>
 </body>
