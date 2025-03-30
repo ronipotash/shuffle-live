@@ -1,173 +1,103 @@
-<!-- FULL HTML STARTS HERE -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Shuffle App - RapidAPI Shazam</title>
+  <title>Shuffle App - Shazam Upgraded</title>
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background: #f5f2e9;
       font-family: Arial, sans-serif;
       overflow-x: hidden;
+      background-color: #121212;
+      color: #fff;
       transition: background-color 1s ease;
-      background: linear-gradient(-45deg, #f5f2e9, #e0e0ff, #f5f2e9);
-      background-size: 400% 400%;
-      animation: backgroundAnimation 20s ease infinite;
-    }
-    @keyframes backgroundAnimation {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
     }
     .hidden { display: none !important; }
-    .fade-in { animation: fadeIn 1s ease forwards; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .splash-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background-color: #f5f2e9;
-      z-index: 1000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      transition: opacity 1s ease;
-    }
-    .splash-screen img {
-      width: 220px; height: 220px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin-bottom: 20px;
-    }
-    .logo-overlay {
-      color: #333;
-      font-size: 2.5em;
-      font-weight: bold;
-    }
     .shuffle-button {
-      border: none;
-      border-radius: 50%;
-      width: 220px;
-      height: 220px;
-      cursor: pointer;
-      background-image: url("https://i.imgur.com/l1YwrjK.jpeg");
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-      animation: pulseGlow 4s ease-in-out infinite, colorPulse 6s ease-in-out infinite;
-      transition: transform 0.3s ease;
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ff0080, #7928ca);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      transition: transform 0.2s;
     }
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 30px rgba(0, 0, 0, 0.1); }
-      50% { box-shadow: 0 0 60px rgba(0, 0, 0, 0.3); }
+    .shuffle-button:hover {
+      transform: translate(-50%, -50%) scale(1.1);
     }
-    @keyframes colorPulse {
-      0%, 100% { filter: hue-rotate(0deg); }
-      50% { filter: hue-rotate(45deg); }
-    }
-    .song-info {
-      position: absolute;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #333;
-      font-size: 1em;
-      background: rgba(255, 255, 255, 0.6);
-      padding: 15px 20px;
-      border-radius: 16px;
-      backdrop-filter: blur(6px);
-      display: flex;
-      align-items: center;
-      gap: 15px;
+    .song-info, .history-list {
       max-width: 90vw;
-      flex-wrap: wrap;
+      margin: 20px auto;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
     }
-    .song-cover {
-      width: 60px; height: 60px;
-      border-radius: 12px;
-      background-size: cover;
-      background-position: center;
-      flex-shrink: 0;
+    .song-info img {
+      width: 100px; border-radius: 12px;
     }
-    .song-details {
-      display: flex;
-      flex-direction: column;
-    }
-    .song-title { font-weight: bold; }
-    .play-button, .stop-button {
-      padding: 6px 12px;
-      margin-left: 10px;
-      background: #1db954;
+    .song-title { font-size: 1.2em; font-weight: bold; }
+    .controls button {
+      margin: 10px;
+      padding: 8px 16px;
       border: none;
       border-radius: 20px;
-      color: white;
-      font-weight: bold;
+      background: #00ffc8;
+      color: #000;
       cursor: pointer;
     }
     .click-counter {
       position: fixed;
       bottom: 20px;
       left: 20px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 12px 24px;
-      border-radius: 30px;
-      font-weight: bold;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.1);
-      font-size: 0.95em;
-    }
-    audio {
-      width: 100%;
-      margin-top: 10px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(6px);
     }
   </style>
 </head>
 <body>
-  <div class="splash-screen" id="splash">
-    <img src="https://i.imgur.com/2R2GeWL.gif" alt="splash gif">
-    <div class="logo-overlay">SHUFFLE</div>
-  </div>
-
-  <button class="shuffle-button hidden" id="shuffleBtn"></button>
-  <div class="click-counter" id="clickCounter">Till now, the SHUFFLE button was clicked 0 times</div>
-
+  <button class="shuffle-button" id="shuffleBtn">SHUFFLE</button>
+  <div class="click-counter" id="clickCounter">Clicks: 0</div>
   <div class="song-info hidden" id="songInfo">
-    <div class="song-cover" id="songCover"></div>
-    <div class="song-details">
-      <div class="song-title" id="songTitle"></div>
-      <div id="songArtist"></div>
-      <div id="songAlbum"></div>
-      <div id="songLinks"></div>
-      <audio id="audioPlayer" controls></audio>
+    <div><img id="songCover" src="" /></div>
+    <div class="song-title" id="songTitle"></div>
+    <div id="songArtist"></div>
+    <div id="songLink"></div>
+    <audio id="audioPlayer" controls></audio>
+    <div class="controls">
+      <button id="playBtn">Play</button>
+      <button id="stopBtn">Stop</button>
     </div>
-    <button class="play-button" id="playBtn">Play</button>
-    <button class="stop-button" id="stopBtn">Stop</button>
   </div>
-
+  <div class="history-list hidden" id="historyList"></div>
   <script>
-    const shuffleBtn = document.getElementById('shuffleBtn');
-    const splash = document.getElementById('splash');
-    const songInfo = document.getElementById('songInfo');
-    const songTitle = document.getElementById('songTitle');
-    const songArtist = document.getElementById('songArtist');
-    const songAlbum = document.getElementById('songAlbum');
-    const songCover = document.getElementById('songCover');
-    const songLinks = document.getElementById('songLinks');
-    const playBtn = document.getElementById('playBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const audioPlayer = document.getElementById('audioPlayer');
-    const clickCounter = document.getElementById('clickCounter');
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const songInfo = document.getElementById("songInfo");
+    const songTitle = document.getElementById("songTitle");
+    const songArtist = document.getElementById("songArtist");
+    const songCover = document.getElementById("songCover");
+    const songLink = document.getElementById("songLink");
+    const audioPlayer = document.getElementById("audioPlayer");
+    const playBtn = document.getElementById("playBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const clickCounter = document.getElementById("clickCounter");
+    const historyList = document.getElementById("historyList");
 
     let clickCount = localStorage.getItem("clicks") || 0;
-    clickCounter.innerText = "Till now, the SHUFFLE button was clicked " + clickCount + " times";
+    let history = JSON.parse(localStorage.getItem("history") || "[]");
+    let autoShuffle = false;
+    let autoInterval = null;
+
+    clickCounter.textContent = `Clicks: ${clickCount}`;
 
     const options = {
       method: 'GET',
@@ -177,48 +107,87 @@
       }
     };
 
-    window.addEventListener('load', () => {
-      splash.style.transition = 'opacity 1s ease';
-      setTimeout(() => {
-        splash.style.opacity = 0.01;
-        setTimeout(() => {
-          splash.classList.add('hidden');
-          shuffleBtn.classList.remove('hidden');
-        }, 1000);
-      }, 3000);
-    });
+    function setDynamicBackground(imgUrl) {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = imgUrl;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        let r = 0, g = 0, b = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i];
+          g += data[i+1];
+          b += data[i+2];
+        }
+        const pixelCount = data.length / 4;
+        r = Math.round(r / pixelCount);
+        g = Math.round(g / pixelCount);
+        b = Math.round(b / pixelCount);
+        document.body.style.backgroundColor = `rgb(${r},${g},${b})`;
+      }
+    }
 
-    shuffleBtn.addEventListener('click', () => {
+    function updateHistory(title, artist) {
+      history.unshift(`${title} - ${artist}`);
+      if (history.length > 10) history.pop();
+      localStorage.setItem("history", JSON.stringify(history));
+      historyList.innerHTML = `<h3>History:</h3><ul>${history.map(item => `<li>${item}</li>`).join('')}</ul>`;
+      historyList.classList.remove("hidden");
+    }
+
+    function fetchSong() {
       clickCount++;
       localStorage.setItem("clicks", clickCount);
-      clickCounter.innerText = "Till now, the SHUFFLE button was clicked " + clickCount + " times";
+      clickCounter.textContent = `Clicks: ${clickCount}`;
 
-      const randomTerms = ["love", "dance", "night", "sun", "dream", "ra", "yo", "star"];
-      const term = randomTerms[Math.floor(Math.random() * randomTerms.length)];
+      const terms = ["love", "dance", "happy", "night"];
+      const term = terms[Math.floor(Math.random() * terms.length)];
 
-      fetch(`https://shazam.p.rapidapi.com/search?term=${term}&locale=en-US&limit=10`, options)
-        .then(response => response.json())
+      fetch(`https://shazam.p.rapidapi.com/search?term=${term}&locale=en-US&limit=5`, options)
+        .then(res => res.json())
         .then(data => {
           const track = data.tracks.hits[Math.floor(Math.random() * data.tracks.hits.length)].track;
           songTitle.textContent = track.title;
-          songArtist.textContent = `👤 ${track.subtitle}`;
-          songAlbum.textContent = `🔉 Shazam Search`;
-          songCover.style.backgroundImage = `url('${track.images.coverart}')`;
-          songLinks.innerHTML = `🔗 <a href="${track.url}" target="_blank">Listen on Shazam</a>`;
+          songArtist.textContent = track.subtitle;
+          songCover.src = track.images.coverart;
+          songLink.innerHTML = `
+            <a href="${track.url}" target="_blank">🔗 Shazam</a> | 
+            <a href="https://open.spotify.com/search/${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🎵 Spotify</a> | 
+            <a href="https://music.apple.com/us/search?term=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🍎 Apple Music</a> | 
+            <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">▶️ YouTube</a>`;
           audioPlayer.src = track.hub?.actions?.[1]?.uri || "";
-          songInfo.classList.remove('hidden');
-          songInfo.classList.add('fade-in');
+          audioPlayer.onended = fetchSong;
+          songInfo.classList.remove("hidden");
+          setDynamicBackground(track.images.coverart);
+          updateHistory(track.title, track.subtitle);
         })
-        .catch(err => {
-          console.error(err);
-          alert("Failed to load song from Shazam");
-        });
-    });
+        .catch(() => alert("Failed to fetch song"));
+    }
 
-    playBtn.addEventListener('click', () => audioPlayer.play());
-    stopBtn.addEventListener('click', () => {
+    shuffleBtn.addEventListener("click", fetchSong);
+    playBtn.addEventListener("click", () => audioPlayer.play());
+    stopBtn.addEventListener("click", () => {
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
+    });
+
+    // Optional toggle for auto-shuffle
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "a") {
+        autoShuffle = !autoShuffle;
+        if (autoShuffle) {
+          autoInterval = setInterval(fetchSong, 15000);
+          alert("Auto Shuffle Enabled");
+        } else {
+          clearInterval(autoInterval);
+          alert("Auto Shuffle Disabled");
+        }
+      }
     });
   </script>
 </body>
