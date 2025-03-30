@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Shuffle App</title>
+  <title>Shuffle App - RapidAPI Shazam</title>
   <style>
     body {
       margin: 0;
@@ -169,7 +169,13 @@
     let clickCount = localStorage.getItem("clicks") || 0;
     clickCounter.innerText = "Till now, the SHUFFLE button was clicked " + clickCount + " times";
 
-    const randomTerms = ["love", "dance", "night", "sun", "dream", "ra", "yo", "star"];
+    const options = {
+      method: 'GET',
+      headers: {
+        'X-RapidAPI-Key': 'f21fc50383mshc998bd535367f60p187d56jsna7d42e2c46f6', // שים כאן את המפתח שלך מ-RapidAPI
+        'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
+      }
+    };
 
     window.addEventListener('load', () => {
       splash.style.transition = 'opacity 1s ease';
@@ -187,24 +193,22 @@
       localStorage.setItem("clicks", clickCount);
       clickCounter.innerText = "Till now, the SHUFFLE button was clicked " + clickCount + " times";
 
-      const term = randomTerms[Math.floor(Math.random() * randomTerms.length)];
-      fetch(`https://corsproxy.io/?https://itunes.apple.com/search?term=${term}&media=music`)
-        .then(res => res.json())
+      fetch('https://shazam.p.rapidapi.com/songs/list-artist-top-tracks?artist_id=40008598&locale=en-US', options)
+        .then(response => response.json())
         .then(data => {
-          if (!data.results || data.results.length === 0) return alert("No songs found");
-          const track = data.results[Math.floor(Math.random() * data.results.length)];
-          songTitle.textContent = track.trackName;
-          songArtist.textContent = `👤 ${track.artistName}`;
-          songAlbum.textContent = `💿 ${track.collectionName}`;
-          songCover.style.backgroundImage = `url('${track.artworkUrl100}')`;
-          songLinks.innerHTML = `🔗 <a href="${track.trackViewUrl}" target="_blank">Listen on Apple Music</a>`;
-          audioPlayer.src = track.previewUrl;
+          const track = data.tracks[Math.floor(Math.random() * data.tracks.length)];
+          songTitle.textContent = track.title;
+          songArtist.textContent = `👤 ${track.subtitle}`;
+          songAlbum.textContent = `🔉 Shazam Track`;
+          songCover.style.backgroundImage = `url('${track.images.coverart}')`;
+          songLinks.innerHTML = `🔗 <a href="${track.url}" target="_blank">Listen on Shazam</a>`;
+          audioPlayer.src = track.hub?.actions?.[1]?.uri || "";
           songInfo.classList.remove('hidden');
           songInfo.classList.add('fade-in');
         })
         .catch(err => {
           console.error(err);
-          alert("Failed to load song from iTunes");
+          alert("Failed to load song from Shazam");
         });
     });
 
