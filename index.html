@@ -132,10 +132,10 @@
   </div>
 
   <script>
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        document.getElementById("splash").style.display = "none";
-      }, 2500);
+window.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    document.getElementById("splash").style.display = "none";
+  }, 2500);
     });
 
     const shuffleBtn = document.getElementById("shuffleBtn");
@@ -249,8 +249,9 @@
       alert("Added to liked songs!");
     });
     volumeSlider.addEventListener("input", () => {
-      audioPlayer.volume = volumeSlider.value;
-    });
+    audioPlayer.volume = volumeSlider.value;
+  });
+}); // end of DOMContentLoaded
   </script>
 </body>
 </html>
