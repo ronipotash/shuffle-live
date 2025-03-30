@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Shuffle App - Fixed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       margin: 0;
@@ -20,42 +21,29 @@
       100% { background-position: 0% 50%; }
     }
     .hidden { display: none !important; }
-    .fade-in {
-      animation: fadeIn 0.8s ease forwards;
-    }
+    .fade-in { animation: fadeIn 0.8s ease forwards; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
     .splash-screen {
-      position: fixed;
-      top: 0; left: 0;
+      position: fixed; top: 0; left: 0;
       width: 100vw; height: 100vh;
       background-color: #fefae0;
       z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
+      display: flex; justify-content: center; align-items: center;
     }
     .splash-screen img {
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      object-fit: cover;
+      width: 300px; height: 300px;
+      border-radius: 50%; object-fit: cover;
     }
     .shuffle-button {
-      border: none;
-      border-radius: 50%;
-      width: 200px;
-      height: 200px;
+      border: none; border-radius: 50%; width: 200px; height: 200px;
       cursor: pointer;
       background: url("https://i.imgur.com/l1YwrjK.jpeg") center/cover;
       box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.2);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      position: absolute;
-      top: 15%; left: 50%;
-      transform: translate(-50%, -50%);
+      position: absolute; top: 15%; left: 50%; transform: translate(-50%, -50%);
     }
     .shuffle-button:active {
       transform: translate(-50%, -50%) scale(0.96);
@@ -65,24 +53,18 @@
       0% { transform: translate(-50%, -50%) rotate(0deg); }
       100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
-    .rotate {
-      animation: rotate360 0.8s ease-in-out;
-    }
+    .rotate { animation: rotate360 0.8s ease-in-out; }
     .click-counter {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
+      position: fixed; bottom: 20px; left: 20px;
       padding: 10px 20px;
       background: rgba(255, 255, 255, 0.8);
-      border-radius: 20px;
-      font-weight: bold;
+      border-radius: 20px; font-weight: bold;
       box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
     }
     .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: flex; flex-direction: column; align-items: center;
       margin-top: 250px;
+      padding: 0 20px;
     }
     .glass-box {
       background: rgba(255, 255, 255, 0.3);
@@ -90,8 +72,7 @@
       border-radius: 16px;
       padding: 15px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      width: 85%;
-      max-width: 400px;
+      width: 100%; max-width: 400px;
       margin: 15px auto;
     }
     .glass-box img {
@@ -105,101 +86,114 @@
     .glass-box img:hover {
       box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
     }
+    .song-link a {
+      display: inline-block;
+      margin: 4px 6px;
+      padding: 6px 12px;
+      text-decoration: none;
+      background: #ffffffcc;
+      color: #222;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+    .song-link a:hover { background: #f0f0f0; }
+    #audioPlayer {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(5px);
+      padding: 5px;
+    }
+    #historyList {
+      position: fixed;
+      left: 10px;
+      top: 100px;
+      max-width: 250px;
+      z-index: 10;
+    }
+    @media (max-width: 600px) {
+      .container {
+        margin-top: 180px;
+      }
+      .shuffle-button {
+        width: 150px; height: 150px;
+      }
+      .glass-box {
+        padding: 10px;
+      }
+      #historyList {
+        display: none; /* hide history on very small screens */
+      }
+    }
+      .controls button {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(145deg, #ffffff, #e6e6e6);
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .controls button:hover {
+      transform: scale(1.05);
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.2);
+    }
+    .dropdown {
+      margin: 10px 0;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    .song-extra {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #555;
+    }
   </style>
 </head>
 <body>
-  <div class="splash-screen" id="splash">
-    <img src="https://i.imgur.com/2R2GeWL.gif" alt="Loading..." />
-  </div>
+<div class="container">
+  <select id="genreSelect" class="dropdown">
+    <option value="">🎶 All Genres</option>
+    <option value="pop">Pop</option>
+    <option value="rock">Rock</option>
+    <option value="hiphop">Hip-Hop</option>
+    <option value="jazz">Jazz</option>
+    <option value="classical">Classical</option>
+    <option value="electronic">Electronic</option>
+  </select>
 
-  <button class="shuffle-button" id="shuffleBtn"></button>
-  <div class="click-counter" id="clickCounter">Till now, the SHUFFLE button was clicked 0 times</div>
-  <div class="container">
-    <div class="glass-box hidden" id="songInfo">
-      <img id="songCover" src="" alt="cover" />
-      <div class="song-title" id="songTitle"></div>
-      <div id="songArtist"></div>
-      <div id="songLink" class="song-link"></div>
-      <div class="controls">
-        <button id="playBtn">Play</button>
-        <button id="stopBtn">Stop</button>
-        <button class="like-button" id="likeBtn">❤️</button>
-      </div>
-      <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1" />
-      <audio id="audioPlayer"></audio>
+  <div class="glass-box hidden" id="songInfo">
+    <img id="songCover" src="" alt="cover" />
+    <div class="song-title" id="songTitle"></div>
+    <div id="songArtist"></div>
+    <div class="song-extra" id="songExtra"></div>
+    <div id="songLink" class="song-link"></div>
+    <div class="controls">
+      <button id="playBtn">▶️ Play</button>
+      <button id="stopBtn">⏹️ Stop</button>
+      <button class="like-button" id="likeBtn">❤️ Like</button>
     </div>
-    <div class="glass-box hidden" id="historyList"></div>
+    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1" />
+    <audio id="audioPlayer" controls></audio>
   </div>
 
-  <script>
-window.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    document.getElementById("splash").style.display = "none";
-  }, 2500);
-
-  const shuffleBtn = document.getElementById("shuffleBtn");
-  const songInfo = document.getElementById("songInfo");
-  const songTitle = document.getElementById("songTitle");
-  const songArtist = document.getElementById("songArtist");
-  const songCover = document.getElementById("songCover");
-  const songLink = document.getElementById("songLink");
-  const audioPlayer = document.getElementById("audioPlayer");
-  const playBtn = document.getElementById("playBtn");
-  const stopBtn = document.getElementById("stopBtn");
-  const likeBtn = document.getElementById("likeBtn");
-  const clickCounter = document.getElementById("clickCounter");
-  const historyList = document.getElementById("historyList");
-  const volumeSlider = document.getElementById("volumeSlider");
-
-  let clickCount = localStorage.getItem("clicks") || 0;
-  let history = JSON.parse(localStorage.getItem("history") || "[]");
-  const likedSongs = JSON.parse(localStorage.getItem("likedSongs") || "[]");
-
-  clickCounter.textContent = `Till now, the SHUFFLE button was clicked ${clickCount} times`;
-
-  const options = {
-    method: 'GET',
-    headers: {
-      'X-RapidAPI-Key': 'f21fc50383mshc998bd535367f60p187d56jsna7d42e2c46f6',
-      'X-RapidAPI-Host': 'shazam.p.rapidapi.com'
-    }
-  };
-
-  function setDynamicBackground(imgUrl) {
-    const img = new Image();
-    img.crossOrigin = "Anonymous";
-    img.src = imgUrl;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-      let r = 0, g = 0, b = 0;
-      for (let i = 0; i < data.length; i += 4) {
-        r += data[i];
-        g += data[i+1];
-        b += data[i+2];
-      }
-      const pixelCount = data.length / 4;
-      r = Math.round(r / pixelCount);
-      g = Math.round(g / pixelCount);
-      b = Math.round(b / pixelCount);
-      document.body.style.backgroundColor = `rgb(${r},${g},${b})`;
-    };
-  }
-
-  function updateHistory(title, artist) {
-    history.unshift(`${title} - ${artist}`);
-    if (history.length > 10) history.pop();
-    localStorage.setItem("history", JSON.stringify(history));
-    historyList.innerHTML = `<h3>History:</h3><ul>${history.map(item => `<li>${item}</li>`).join('')}</ul>`;
-    historyList.classList.remove("hidden");
-    historyList.classList.add("fade-in");
-  }
-
+  <div class="glass-box hidden" id="historyList"></div>
+</div>
+<script>
+  const genreSelect = document.getElementById("genreSelect");
+  const songExtra = document.getElementById("songExtra");
+  
   function fetchSong() {
+    const genre = genreSelect.value;
     clickCount++;
     localStorage.setItem("clicks", clickCount);
     clickCounter.textContent = `Till now, the SHUFFLE button was clicked ${clickCount} times`;
@@ -209,17 +203,19 @@ window.addEventListener("DOMContentLoaded", () => {
     fetch('https://random-word-api.herokuapp.com/word')
       .then(res => res.json())
       .then(([term]) => {
-        fetch(`https://shazam.p.rapidapi.com/search?term=${term}&locale=en-US&limit=5`, options)
+        const searchTerm = genre ? `${term} ${genre}` : term;
+        fetch(`https://shazam.p.rapidapi.com/search?term=${searchTerm}&locale=en-US&limit=5`, options)
           .then(res => res.json())
           .then(data => {
             const track = data.tracks.hits[Math.floor(Math.random() * data.tracks.hits.length)].track;
             songTitle.textContent = track.title;
             songArtist.textContent = track.subtitle;
             songCover.src = track.images.coverart;
+            songExtra.textContent = `${track.sections?.[0]?.metadata?.[1]?.text || ''} | ${track.sections?.[0]?.metadata?.[2]?.text || ''}`;
             songLink.innerHTML = `
-              <a href="${track.url}" target="_blank">🔗 Shazam</a> |
-              <a href="https://open.spotify.com/search/${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🎵 Spotify</a> |
-              <a href="https://music.apple.com/us/search?term=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🍎 Apple Music</a> |
+              <a href="${track.url}" target="_blank">🔗 Shazam</a>
+              <a href="https://open.spotify.com/search/${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🎵 Spotify</a>
+              <a href="https://music.apple.com/us/search?term=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">🍎 Apple Music</a>
               <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(track.title + ' ' + track.subtitle)}" target="_blank">▶️ YouTube</a>`;
             audioPlayer.src = track.hub?.actions?.[1]?.uri || "";
             audioPlayer.onended = fetchSong;
@@ -233,23 +229,6 @@ window.addEventListener("DOMContentLoaded", () => {
       })
       .catch(() => alert("Failed to fetch random word"));
   }
-
-  shuffleBtn.addEventListener("click", fetchSong);
-  playBtn.addEventListener("click", () => audioPlayer.play());
-  stopBtn.addEventListener("click", () => {
-    audioPlayer.pause();
-    audioPlayer.currentTime = 0;
-  });
-  likeBtn.addEventListener("click", () => {
-    const title = songTitle.textContent;
-    const artist = songArtist.textContent;
-    likedSongs.push(`${title} - ${artist}`);
-    localStorage.setItem("likedSongs", JSON.stringify(likedSongs));
-    alert("Added to liked songs!");
-  });
-  volumeSlider.addEventListener("input", () => {
-    audioPlayer.volume = volumeSlider.value;
-  });});
-  </script>
+</script>
 </body>
 </html>
