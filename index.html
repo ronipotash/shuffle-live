@@ -233,11 +233,12 @@
       shuffleBtn.classList.add("rotate");
       setTimeout(() => shuffleBtn.classList.remove("rotate"), 800);
 
-      const terms = ["love", "dance", "happy", "night"];
-      const term = terms[Math.floor(Math.random() * terms.length)];
+      fetch('https://random-word-api.herokuapp.com/word')
+        .then(res => res.json())
+        .then(([term]) => {
 
       fetch(`https://shazam.p.rapidapi.com/search?term=${term}&locale=en-US&limit=5`, options)
-        .then(res => res.json())
+          .then(res => res.json())
         .then(data => {
           const track = data.tracks.hits[Math.floor(Math.random() * data.tracks.hits.length)].track;
           songTitle.textContent = track.title;
@@ -277,6 +278,9 @@
 
     volumeSlider.addEventListener("input", () => {
       audioPlayer.volume = volumeSlider.value;
+    });
+
+    }); // end of fetch random word
     });
   </script>
 </body>
