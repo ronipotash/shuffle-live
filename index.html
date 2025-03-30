@@ -189,27 +189,31 @@
     });
 
     shuffleBtn.addEventListener('click', () => {
-      clickCount++;
-      localStorage.setItem("clicks", clickCount);
-      clickCounter.innerText = "Till now, the SHUFFLE button was clicked " + clickCount + " times";
+  clickCount++;
+  localStorage.setItem("clicks", clickCount);
+  clickCounter.innerText = "Till now, the SHUFFLE button was clicked " + clickCount + " times";
 
-      fetch('https://shazam.p.rapidapi.com/songs/list-artist-top-tracks?artist_id=40008598&locale=en-US', options)
-        .then(response => response.json())
-        .then(data => {
-          const track = data.tracks[Math.floor(Math.random() * data.tracks.length)];
-          songTitle.textContent = track.title;
-          songArtist.textContent = `👤 ${track.subtitle}`;
-          songAlbum.textContent = `🔉 Shazam Track`;
-          songCover.style.backgroundImage = `url('${track.images.coverart}')`;
-          songLinks.innerHTML = `🔗 <a href="${track.url}" target="_blank">Listen on Shazam</a>`;
-          audioPlayer.src = track.hub?.actions?.[1]?.uri || "";
-          songInfo.classList.remove('hidden');
-          songInfo.classList.add('fade-in');
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Failed to load song from Shazam");
-        });
+  const randomTerms = ["love", "dance", "night", "sun", "dream", "ra", "yo", "star"];
+  const term = randomTerms[Math.floor(Math.random() * randomTerms.length)];
+
+  fetch(`https://shazam.p.rapidapi.com/search?term=${term}&locale=en-US&limit=10`, options)
+    .then(response => response.json())
+    .then(data => {
+      const track = data.tracks.hits[Math.floor(Math.random() * data.tracks.hits.length)].track;
+      songTitle.textContent = track.title;
+      songArtist.textContent = `👤 ${track.subtitle}`;
+      songAlbum.textContent = `🔉 Shazam Search`;
+      songCover.style.backgroundImage = `url('${track.images.coverart}')`;
+      songLinks.innerHTML = `🔗 <a href="${track.url}" target="_blank">Listen on Shazam</a>`;
+      audioPlayer.src = track.hub?.actions?.[1]?.uri || "";
+      songInfo.classList.remove('hidden');
+      songInfo.classList.add('fade-in');
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Failed to load song from Shazam");
+    });
+});
     });
 
     playBtn.addEventListener('click', () => audioPlayer.play());
